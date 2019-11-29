@@ -44,7 +44,9 @@ template <class T, int BTREE_ORDER = 3> class btree {
     }
 
     bool is_overflow() { return count > BTREE_ORDER; }
-    bool is_underflow() { return count < ceil(BTREE_ORDER/2.0) ; }
+    bool is_underflow() {
+        return count < floor(BTREE_ORDER/2.0) ;
+    }
   };
   node *root;
 
@@ -82,9 +84,7 @@ public:
 
     int iter = 0;
     int i;
-    int mid = BTREE_ORDER;
-    if (BTREE_ORDER % 2 == 1) mid = BTREE_ORDER + 1;
-    for (i = 0; iter <= ceil(BTREE_ORDER / 2); i++) {
+    for (i = 0; iter < ceil(BTREE_ORDER / 2.0); i++) {
       child1->children[i] = node_in_overflow->children[iter];
       child1->data[i] = node_in_overflow->data[iter];
       child1->count++;
@@ -122,9 +122,8 @@ public:
 
     int iter = 0;
     int i;
-    int mid = BTREE_ORDER;
-    if (BTREE_ORDER % 2 == 1) mid = BTREE_ORDER + 1;
-    for (i = 0; i < ceil(mid / 2); i++) {
+
+    for (i = 0; i < ceil(BTREE_ORDER / 2.0); i++) {
       child1->children[i] = node_in_overflow->children[iter];
       child1->data[i] = node_in_overflow->data[iter];
       child1->count++;
@@ -189,43 +188,46 @@ public:
   }
 
   void decrease_height( node* ptr, node* node_in_underflow, int pos) {
-    if (pos == 0) { //underflow desde la izquierda
-        //insertar dato del padre al hermano
-        node* sibling = ptr->children[1];
-        sibling->insert_in_node(0,ptr->data[0]);
-        // 1 hijo del hno ahora es el ultimo hijo del underflow
-        int last = node_in_underflow->count;
-        sibling->children[0] = node_in_underflow->children[last];
-        for(int i = last-1; i >= 0; --i){
-            sibling->insert_in_node(0,node_in_underflow->data[i]);
-            sibling->children[0] = node_in_underflow->children[i];
+      if(pos  != ptr->count) {
+          if(ptr->children[pos]->count < floor(BTREE_ORDER/2.0)) { //underflow desde la izquierda
+              //insertar dato del padre al hermano
+              node* sibling = ptr->children[pos+1];
+              sibling->insert_in_node(0,ptr->data[pos]);
+              // 1 hijo del hno ahora es el ultimo hijo del underflow
+              int last = node_in_underflow->count;
+              sibling->children[0] = node_in_underflow->children[last];
+              for(int i = last-1; i >= 0; --i){
+                  sibling->insert_in_node(0,node_in_underflow->data[i]);
+                  sibling->children[0] = node_in_underflow->children[i];
+              }
+              //elimino el dato que bajo
+              ptr->delete_in_node(pos);
+              //el 1 hijo del padre ahora es el hno
+              ptr->children[pos] = sibling;
+              return;
+          }
+      }
+      node* sibling = ptr->children[pos-1];
+      int last = sibling->count;
+      sibling->insert_in_node(last, ptr->data[pos-1]); //insert en la ult pos data padre
+      sibling->children[last+1]=node_in_underflow->children[0]; //el ptr al child en underflow
+      for(int i = 0; i < node_in_underflow->count; i++) {
+          last = sibling->count;
+          sibling->insert_in_node(last, node_in_underflow->data[i]);
+          sibling->children[last+1] = node_in_underflow->children[i+1];
         }
-        //elimino el dato que bajo
-        ptr->delete_in_node(0);
-        //el 1 hijo del padre ahora es el hno
-        ptr->children[0] = sibling;
-    } else { //underflow desde la derecha
-        node* sibling = ptr->children[pos-1];
-        int last = sibling->count;
-        sibling->insert_in_node(last, ptr->data[pos-1]); //insert en la ult pos data padre
-        sibling->children[last+1]=node_in_underflow->children[0]; //el ptr al child en underflow
-        for(int i = 0; i < node_in_underflow->count; i++) {
-            last = sibling->count;
-            sibling->insert_in_node(last, node_in_underflow->data[i]);
-            sibling->children[last+1] = node_in_underflow->children[i+1];
-        }
-        //elimino el dato que bajo
-        ptr->delete_in_node(pos-1);
-        //el 1 hijo del padre ahora es el hno
-        ptr->children[pos-1] = sibling;
-    }
+      //elimino el dato que bajo
+      ptr->delete_in_node(pos-1);
+      //el 1 hijo del padre ahora es el hno
+      ptr->children[pos-1] = sibling;
+
   }
 
   bool merge_with_parent(node* ptr, node* node_in_underflow,  int pos) {
       //checkear si se puede robar a la izq o a la der
       if (pos !=  0 ) {
           //el caso de robar al hijo de la izquierda
-          if ((ptr->children[pos-1]->count-1) > ceil(BTREE_ORDER/2.0)) { //puede prestar 1 dato?
+          if ((ptr->children[pos-1]->count-1) >= floor(BTREE_ORDER/2.0)) { //puede prestar 1 dato?
               node* sibling = ptr->children[pos-1];
               T jesus = ptr->data[pos-1]; //dato del padre
               //el padre baja donde el nodo en underflow
@@ -240,7 +242,7 @@ public:
           }
       } else if (pos != BTREE_ORDER) {
           //el caso de robar al hijo de la derecha
-          if((ptr->children[pos+1]->count-1) > ceil(BTREE_ORDER/2.0)) {
+          if((ptr->children[pos+1]->count-1) >= floor(BTREE_ORDER/2.0)) {
               node* sibling = ptr->children[pos+1];
               T jesus = ptr->data[pos]; //dato del padre
               //el padre baja donde el nodo en underflow
@@ -282,7 +284,7 @@ public:
   bool steal_sibling(node* node_in_underflow, node* ptr, int pos) {
       if(ptr->children[0]->children[0] == NULL) { //solo puedes robar en nodos hojas
           if (pos != ptr->count) {
-              if(ptr->children[pos+1]->count-1 > ceil(BTREE_ORDER/2.0)){
+              if(ptr->children[pos+1]->count-1 >= floor(BTREE_ORDER/2.0)){
                   node *sibling = ptr->children[pos + 1]; //hermano de la derecha
                   T jesus = sibling->data[0];
                   T jesus2 = sibling->data[1];
@@ -293,7 +295,7 @@ public:
               }
           }
           if (pos > 0) {
-              if(ptr->children[pos-1]->count-1 > ceil(BTREE_ORDER/2.0)) {
+              if(ptr->children[pos-1]->count-1 >= floor(BTREE_ORDER/2.0)) {
                   node *sibling = ptr->children[pos - 1];  //hermano de la izquierda
                   T jesus = sibling->data[sibling->count - 1];  //el valor mas a la derecha
                   sibling->delete_in_node(sibling->count - 1);
@@ -304,7 +306,7 @@ public:
           }
       } return false;
   }
-  int succesor(node* ptr) {
+  T succesor(node* ptr) {
       while(ptr->children[0] != NULL) {
           ptr = ptr->children[0];
       }
