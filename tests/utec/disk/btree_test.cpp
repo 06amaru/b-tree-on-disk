@@ -3,124 +3,149 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <utec/disk/btree.hpp>
-#include <utec/disk/pagemanager.hpp>
-
+#include <utec/memory/btree.h>
 #include <fmt/core.h>
 
-// PAGE_SIZE 64 bytes
-struct Pair {
-    long id;
-    long page_id;
-    bool operator <(const Pair &p) const {
-        if ( this->id < p.id) return true;
-        else return false;
-    }
-    bool operator <=(const Pair &p) const {
-        if (this->id <= p.id) return true;
-        else return false;
-    }
-    bool operator ==(const Pair &p) const {
-        if (this->id == p.id) return true;
-        else return false;
-    }
-};
-
-struct Student {
-    long  id;
-    bool passed;
-    char name[32];
-    char surname[32];
-    int  n_credits;
-};
-
-std::ostream& operator <<(std::ostream& out, Pair &p)  {
-      out << p.id;
-      return out;
-}
-
-#define PAGE_SIZE  1024 
-
-// Other examples:
-// PAGE_SIZE 1024 bytes => 1Kb
-// PAGE_SIZE 1024*1024 bytes => 1Mb
-
-// PAGE_SIZE = 4 * sizeof(long) +  (BTREE_ORDER + 1) * sizeof(int) + (BTREE_ORDER + 2) * sizeof(long)  
-// PAGE_SIZE = 4 * sizeof(long) +  (BTREE_ORDER) * sizeof(int) + sizeof(int) + (BTREE_ORDER) * sizeof(long) + 2 * sizeof(long)
-// PAGE_SIZE = (BTREE_ORDER) * (sizeof(int) + sizeof(long))  + 4 * sizeof(long) + sizeof(int) +  2 * sizeof(long)
-//  BTREE_ORDER = PAGE_SIZE - (4 * sizeof(long) + sizeof(int) +  2 * sizeof(long)) /  (sizeof(int) + sizeof(long))
-
-#define BTREE_ORDER   ((PAGE_SIZE - (6 * sizeof(long) + sizeof(Pair)) ) /  (sizeof(Pair) + sizeof(long)))
-
-using namespace utec::disk;
-    
-struct DiskBasedBtree : public ::testing::Test
+struct MemoryBasedBtree : public ::testing::Test
 {
 };
 
 
-// TEST_F(DiskBasedBtree, TestA) {  //if you run this then change the page size ( Pair -> int)
-//     std::shared_ptr<pagemanager> pm = std::make_shared<pagemanager>("btree.index", true);
-//     std::cout << "PAGE_SIZE: " << PAGE_SIZE << std::endl;
-//     std::cout << "BTREE_ORDER: " << BTREE_ORDER << std::endl;
-//     btree<int, BTREE_ORDER> bt(pm);
-//     std::string values = "zxcnmvafjdaqpirue";
-//     for(auto c : values) {
-//        bt.insert((int)c);
-//        //bt.print();
-//     }
-//     bt.print();
-    
-//     // btree<int,BTREE_ORDER>::iterator it = bt.begin(); 
-//     btree<int,BTREE_ORDER>::iterator it = bt.find((int)'f');
-//     btree<int,BTREE_ORDER>::iterator end = bt.find((int)'m');
-//     for( ; it != end; ++it){
-//         std::cout<<(char)*it<<' ';
-//     }
-    
-// }
- 
-TEST_F(DiskBasedBtree, TestC) {
+TEST_F(MemoryBasedBtree, TestA) {
+    using namespace utec::memory;
 
-    std::shared_ptr<pagemanager> pm = std::make_shared<pagemanager>("b+tree.index", true);
-    btree< Pair, BTREE_ORDER> bt(pm);
-    pagemanager record_manager ("students.bin", true);
-    long page_id;
-
-    for(int i = 1; i < 1000000; i++) {
-         Student p { i * 10, true, "amaru", "orihuela", 32};
-         page_id = i;
-         record_manager.save(page_id, p);
-         bt.insert(Pair{p.id, page_id});
-     }
-
-    auto iter = bt.find(Pair{500000, -1});
+    btree<int,4> bt;
+    bt.insert(10);
+    bt.insert(5);
+    bt.insert(8);
+    bt.insert(9);
     bt.print();
-    auto end = bt.find(Pair{500420, -1});
-    for(; iter != end; ++iter) {
-        auto pair = *iter;
-        Student s;
-        record_manager.recover(pair.page_id, s);
-        std::cout<< s.id <<  '\n';
+    bt.insert(17);
+    bt.print();
+    bt.insert(21);
+    bt.print();
+    bt.insert(25);
+    bt.print();
+    bt.insert(44);
+    bt.print();
+    bt.insert(48);
+    bt.print();
+    bt.insert(59);
+    bt.print();
+    bt.remove(21);
+    bt.print();
+    bt.remove(5);
+    bt.print();
+    bt.remove(10);
+    bt.print();
+    bt.remove(8);
+    bt.print();
+    bt.insert(49);
+    bt.print();
+    bt.insert(60);
+    bt.print();
+    bt.remove(17);
+    bt.print();
+    bt.remove(59);
+    bt.print();
+    bt.remove(60);
+    bt.print();
+    bt.remove(48);
+    bt.print();
+    bt.remove(25);
+    bt.print();
+}
+
+TEST_F(MemoryBasedBtree, TestB){
+    using namespace utec::memory;
+
+    btree<int, 5> bt;
+    bt.insert(42);
+    bt.insert(19);
+    bt.insert(85);
+    bt.insert(27);
+    bt.print();
+    bt.insert(63);
+    bt.insert(35);
+    bt.insert(18);
+    bt.print();
+    bt.insert(99);
+    bt.print();
+    bt.insert(87);
+    bt.print();
+    bt.insert(21);
+    bt.print();
+    bt.insert(76);
+    bt.print();
+    bt.insert(54);
+    bt.print();
+    bt.remove(85);
+    bt.print();
+    bt.remove(87);
+    bt.print();
+    bt.remove(63);
+    bt.print();
+    bt.remove(19);
+    bt.print();
+    bt.remove(21);
+    bt.print();
+    bt.remove(35);
+    bt.print();
+    bt.remove(54);
+    bt.print();
+    bt.remove(76);  //si quieres ver un merge with parent caso izquierda
+    bt.print();
+    bt.remove(42);  //si quieres ver un merge leaf
+    bt.print();
+    bt.remove(99);
+    bt.print();
+    bt.remove(18);
+    bt.print();
+}
+
+TEST_F(MemoryBasedBtree, TestC) {
+    using namespace utec::memory;
+    btree<char> bt;
+    std::string abc = "qruvefghicdlmnojkwxyzabpst";
+    for (int i = 0; i < abc.size(); ++i) {
+        bt.insert(abc[i]);
+        bt.print();
+    }
+
+    for (int i = abc.size()-1; i >= 0; --i) {
+        std::cout << "DELETE "<<abc[i]<<'\n';
+        bt.remove(abc[i]);
+        bt.print();
+    }
+}
+
+TEST_F(MemoryBasedBtree, TestD) {
+    using namespace utec::memory;
+    btree<int> bt;
+    for(int i = 0; i < 10; i++)
+        bt.insert(i);
+    bt.print();
+    bt.remove(6);
+    bt.print();
+}
+
+TEST_F(MemoryBasedBtree, TestE) {
+
+    using namespace utec::memory;
+    btree<int> bt;
+    int input [24]={16, 11, 17, 14, 23, 12, 1, 9, 19, 22, 7, 24, 6, 18, 8, 4, 21, 2, 10, 13, 15, 5, 20, 3};
+
+    for(int i = 0; i < 24; i++) {
+        bt.insert(input[i]);
+        bt.print();
+    }
+
+    for(int i = 23; i >= 0; i--) {
+        std::cout << "ELIMINARE " << input[i]<<"\n";
+        bt.remove(input[i]);
+        bt.print();
     }
 
 }
-
-TEST_F(DiskBasedBtree, TestC2) {
-
-    std::shared_ptr<pagemanager> pm = std::make_shared<pagemanager>("b+tree.index", false);
-    btree< Pair, BTREE_ORDER> bt(pm);
-    pagemanager record_manager ("students.bin", false);
-    long page_id;
-
-    auto iter = bt.find(Pair{9990, -1});
-    auto end = bt.find(Pair{11990, -1});
-    for(; iter != end; ++iter) {
-        auto pair = *iter;
-        Student s;
-        record_manager.recover(pair.page_id, s);
-        std::cout<< s.id <<  '\n';
-    }
-
-}
-
+ 
+ 
