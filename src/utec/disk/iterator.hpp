@@ -27,10 +27,10 @@ public:
         } else {
             index = 0;
             node aux{-1};
-             if(currentPosition.next == 0){  //consulta sentinela
+             if(currentPosition.right == 0){  //consulta sentinela
                  currentPosition = aux;
              } else {
-            this->pm->recover(currentPosition.next, currentPosition);
+            this->pm->recover(currentPosition.right, currentPosition);
              }
         }
         return *this;

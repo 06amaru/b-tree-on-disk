@@ -8,8 +8,7 @@ struct node {
 
     long page_id{-1};
     long count{0};
-    long next{0};
-    long prev{0};
+    long right{0};
 
     T data[BTREE_ORDER + 1];
     long children[BTREE_ORDER + 2];
@@ -35,8 +34,16 @@ struct node {
       count++;
     }
 
-    bool is_overflow() { return count > BTREE_ORDER; }
+    void delete_in_node(int pos) {
+        for(int i = pos; i < count; i++) {
+            data[i] = data[i+1];
+            children[i+1]=children[i+2];
+        }
+        count--;
+    }
 
+    bool is_overflow() { return count > BTREE_ORDER; }
+    bool is_underflow() { return count < floor(BTREE_ORDER/2.0); }
 };
 
 }
