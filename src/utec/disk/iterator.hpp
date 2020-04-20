@@ -5,13 +5,10 @@ namespace utec {
 namespace disk {
 
 
-template<class T, int BTREE_ORDER>
-struct node;
-
 template <class T, int B>
 class Iterator {
 public:
-    typedef node<T,B> node;
+    typedef Node<T,B> node;
     int index = 0;
     node currentPosition;
     Iterator() {}

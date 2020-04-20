@@ -3,8 +3,8 @@ namespace utec {
 namespace disk {
 
 template<class T, int BTREE_ORDER>
-struct node {
-    node() {}
+struct Node {
+    Node() {}
 
     long page_id{-1};
     long count{0};
@@ -14,7 +14,7 @@ struct node {
     long children[BTREE_ORDER + 2];
 
 
-    node(long page_id) : page_id{page_id} {
+    Node(long page_id) : page_id{page_id} {
       count = 0;
       for (int i = 0; i < BTREE_ORDER + 2; i++) {
         children[i] = 0;

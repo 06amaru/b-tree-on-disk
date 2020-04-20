@@ -11,7 +11,7 @@ namespace disk {
 template <class T, int BTREE_ORDER = 3> class btree {
 public:
   
-  typedef node<T,BTREE_ORDER> node;
+  typedef Node<T,BTREE_ORDER> node;
   typedef Iterator<T,BTREE_ORDER> iterator;
 
   iterator begin() {
