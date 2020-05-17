@@ -6,5 +6,5 @@ Insert, delete and search were developed.
 
 Requirements
 -------------
-The basic requirements for this example is CLion or just run cmake.
+The basic requirements for this example is CLion or just run cmake ( v3.15 or earlier).
 
