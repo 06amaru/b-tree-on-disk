@@ -57,34 +57,32 @@ using namespace utec::disk;
 struct DiskBasedBtree : public ::testing::Test {
 };
 
-//TEST_F(DiskBasedBtree, TestC) {
-//
-//    std::shared_ptr<pagemanager> pm = std::make_shared<pagemanager>("b+tree.index", true);
-//    btree< Pair, BTREE_ORDER> bt(pm);
-//    pagemanager record_manager ("students.bin", true);
-//    long page_id;
-//
-//    for(int i = 1; i < 1000000; i++) {
-//         Student p { i * 10, true, "amaru", "orihuela", 32};
-//         page_id = i;
-//         record_manager.save(page_id, p);
-//         bt.insert(Pair{p.id, page_id});
-//     }
-//
-//    auto iter = bt.find(Pair{500000, -1});
-//    bt.print(std::cout);
-//    auto end = bt.find(Pair{500420, -1});
-//    for(; iter != end; ++iter) {
-//        auto pair = *iter;
-//        Student s;
-//        record_manager.recover(pair.page_id, s);
-//        std::cout<< s.id <<  '\n';
-//    }
-//
-//}
+TEST_F(DiskBasedBtree, TestC) {
 
-TEST_F(DiskBasedBtree, TestC2
-) {
+    std::shared_ptr<pagemanager> pm = std::make_shared<pagemanager>("b+tree.index", true);
+    btree< Pair, BTREE_ORDER> bt(pm);
+    pagemanager record_manager ("students.bin", true);
+    long page_id;
+
+    for(int i = 1; i < 1000000; i++) {
+         Student p { i * 10, true, "amaru", "orihuela", 32};
+         page_id = i;
+         record_manager.save(page_id, p);
+         bt.insert(Pair{p.id, page_id});
+     }
+
+    auto iter = bt.find(Pair{500000, -1});
+    auto end = bt.find(Pair{500420, -1});
+    for(; iter != end; ++iter) {
+        auto pair = *iter;
+        Student s;
+        record_manager.recover(pair.page_id, s);
+        std::cout<< s.id <<  '\n';
+    }
+
+}
+
+TEST_F(DiskBasedBtree, TestC2) {
 
 std::shared_ptr <pagemanager> pm = std::make_shared<pagemanager>("b+tree.index", false);
 btree<Pair, BTREE_ORDER> bt(pm);
@@ -93,15 +91,11 @@ long page_id;
 
 auto iter = bt.find(Pair{9990, -1});
 auto end = bt.find(Pair{11990, -1});
-for(; iter !=
-end;
-++iter) {
-auto pair = *iter;
-Student s;
-record_manager.
-recover(pair
-.page_id, s);
-std::cout<< s.id << " " << s.name<< " " << s.surname <<  '\n';
+for(; iter !=end;++iter) {
+    auto pair = *iter;
+    Student s;
+    record_manager.recover(pair.page_id, s);
+    std::cout<< s.id << " " << s.name<< " " << s.surname <<  '\n';
 }
 
 }
