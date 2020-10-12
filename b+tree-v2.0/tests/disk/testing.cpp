@@ -77,25 +77,25 @@ TEST_F(DiskBasedBtree, TestC) {
         auto pair = *iter;
         Student s;
         record_manager.recover(pair.page_id, s);
-        std::cout<< s.id <<  '\n';
+        std::cout<< "ID "<< s.id <<  '\n';
     }
 
 }
 
 TEST_F(DiskBasedBtree, TestC2) {
 
-std::shared_ptr <pagemanager> pm = std::make_shared<pagemanager>("b+tree.index", false);
-btree<Pair, BTREE_ORDER> bt(pm);
-pagemanager record_manager("students.bin", false);
-long page_id;
+    std::shared_ptr <pagemanager> pm = std::make_shared<pagemanager>("b+tree.index", false);
+    btree<Pair, BTREE_ORDER> bt(pm);
+    pagemanager record_manager("students.bin", false);
+    long page_id;
 
-auto iter = bt.find(Pair{9990, -1});
-auto end = bt.find(Pair{11990, -1});
-for(; iter !=end;++iter) {
-    auto pair = *iter;
-    Student s;
-    record_manager.recover(pair.page_id, s);
-    std::cout<< s.id << " " << s.name<< " " << s.surname <<  '\n';
-}
+    auto iter = bt.find(Pair{9990, -1});
+    auto end = bt.find(Pair{11990, -1});
+    for(; iter !=end;++iter) {
+        auto pair = *iter;
+        Student s;
+        record_manager.recover(pair.page_id, s);
+        std::cout<< s.id << " " << s.name<< " " << s.surname <<  '\n';
+    }
 
 }

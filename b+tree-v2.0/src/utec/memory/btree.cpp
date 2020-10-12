@@ -347,6 +347,21 @@ namespace utec {
                     print(ptr->children[i + 1], level + 1);
                 }
             }
+
+            void inorder() {
+                inorder(root, 0);
+            }
+
+            void inorder(node *ptr, int level) {
+                if (ptr) {
+                    int i;
+                    for (i = 0; i < ptr->count; i++) {
+                        inorder(ptr->children[i], level + 1);
+                        std::cout << ptr->data[i] << ", ";
+                    }
+                    inorder(ptr->children[i], level + 1);
+                }
+            }
         };
     } // namespace memory
 } // namespace utec

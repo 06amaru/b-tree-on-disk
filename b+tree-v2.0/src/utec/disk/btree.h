@@ -247,7 +247,7 @@ namespace utec {
                         node node_in_underflow = child;
                         bool can_steal = steal_sibling(node_in_underflow, ptr, pos);
                         if (!can_steal) {
-                            if (node_in_underflow.children[0] == 0) { //si el underflow es hoja
+                            if (node_in_underflow.children[0] == 0) { //si el underflow es leaf
                                 merge_leaf(ptr, node_in_underflow, pos);
                             } else {
                                 bool can_merge = merge_with_parent(ptr, node_in_underflow, pos);
@@ -333,7 +333,7 @@ namespace utec {
             }
 
             void merge_leaf(node &ptr, node &node_in_underflow, int pos) {
-                if (pos - 1 >= 0) { //derecha se une a izquierda
+                if (pos - 1 >= 0) { //right se une a left
                     node sibling = read_node(ptr.children[pos - 1]);
                     for (int i = 0; i < node_in_underflow.count; i++) {
                         int pos_in = sibling.count;
@@ -345,7 +345,7 @@ namespace utec {
                     write_node(sibling.page_id, sibling);
                     write_node(ptr.page_id, ptr);
 
-                } else { //izquierda se une a la derecha
+                } else { //left se une a la right
                     node sibling = read_node(ptr.children[1]);
                     for (int i = 0; i < sibling.count; i++) {
                         int pos_in = node_in_underflow.count;
