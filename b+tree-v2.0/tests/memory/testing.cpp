@@ -9,7 +9,7 @@ struct MemoryBasedBtree : public ::testing::Test {
 };
 
 
-TEST_F(MemoryBasedBtree, TestB){
+/*TEST_F(MemoryBasedBtree, TestB){
 using namespace utec::memory;
 
     btree<int, 5> bt;
@@ -90,7 +90,7 @@ using namespace utec::memory;
         bt.remove(abc[i]);
         bt.print();
     }
-}
+}*/
 
 
 //TEST_F(MemoryBasedBtree, TestF) {
